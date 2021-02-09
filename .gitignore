@@ -1,0 +1,5 @@
+*.py[cod]
+*.swp
+env/
+__pycache__/
+koulu_ds_bot/secret.py
