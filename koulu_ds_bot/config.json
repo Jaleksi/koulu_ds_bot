@@ -1,4 +1,4 @@
 {
     "commandPrefix": "!",
-    "events": ["ping"]
+    "events": ["ping", "kurssi"]
 }
