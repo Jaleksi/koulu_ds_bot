@@ -1,4 +1,11 @@
 {
     "commandPrefix": "!",
-    "events": ["ping", "kurssi", "tori"]
+    "databasePath": "src/db/koulubot.db",
+    "events": [
+        "ping",
+        "uusikurssi",
+        "poistakurssi",
+        "kurssit",
+        "tori"
+    ]
 }
