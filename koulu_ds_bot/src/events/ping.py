@@ -4,7 +4,5 @@ from discord.ext import commands
 async def ping(context):
     await context.send("pong")
 
-
 def setup(bot):
     bot.add_command(ping)
-
