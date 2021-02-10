@@ -1,9 +1,5 @@
-import discord
+from discord.ext.commands import Bot
 
-class Bot(discord.Client):
+class KouluBot(Bot):
     async def on_ready(self):
         print(f'Logged in as {self.user}')
-
-    async def on_message(self, msg):
-        print(f'{msg.author}: {msg.content}')
-
