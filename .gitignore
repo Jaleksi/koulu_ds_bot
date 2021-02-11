@@ -3,3 +3,4 @@
 env/
 __pycache__/
 koulu_ds_bot/secret.py
+koulu_ds_bot/koulu_ds_bot/src/db/koulubot.db

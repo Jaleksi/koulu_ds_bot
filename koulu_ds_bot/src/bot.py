@@ -12,8 +12,13 @@ class KouluBot(Bot):
     def init_database(self):
         try:
             self.database = sqlite3.connect(self.config['databasePath'])
-            # make sure table exists
-            q = 'CREATE TABLE IF NOT EXISTS kurssit (id text PRIMARY KEY, title text);'
+            # make sure course table exists
+            q = ''' CREATE TABLE IF NOT EXISTS courses (
+                        id text PRIMARY KEY,
+                        title text,
+                        channel integer
+                        );
+                '''
             self.database_query(q)
             print(f'Database {self.config["databasePath"]} connected successfully')
         except Exception as err:

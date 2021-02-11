@@ -8,17 +8,18 @@ async def poistakurssi(context, param=None):
         return
 
     try:
-        q = f'SELECT title FROM kurssit WHERE id="{param}"'
-        desc_of_deleted = context.bot.database_return(q, fetch_all=False)
+        q = f'SELECT title, channel FROM courses WHERE id="{param}"'
+        delete_this = context.bot.database_return(q, fetch_all=False)
 
-        if not desc_of_deleted:
+        if not delete_this:
             await context.send('Kurssia ei löytynyt')
             return
 
-        q = f'DELETE FROM kurssit WHERE id="{param}"'
+        q = f'DELETE FROM courses WHERE id="{param}"'
         context.bot.database_query(q)
-        e = Embed(title=f'Poistettiin kurssi {param} onnistuneesti', description=desc_of_deleted[0])
-        await context.send(embed=e)
+        e = Embed(title=f'Poistettiin kurssi {param} onnistuneesti', description=delete_this[0])
+        
+        await context.bot.get_channel(delete_this[1]).send(embed=e)
 
     except Exception as err:
         print(err)
