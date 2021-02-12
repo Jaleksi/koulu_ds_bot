@@ -6,6 +6,12 @@
         "uusikurssi",
         "poistakurssi",
         "kurssit",
+        "deadline",
+        "deadlinet",
         "tori"
+    ],
+    "db_tables": [
+        "courses",
+        "deadlines"
     ]
 }
