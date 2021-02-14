@@ -19,9 +19,11 @@ def timestamp_to_epoch(timestamp, delimiter):
     return epoch_time
 
 
-def epoch_to_readable(epoch_time):
+def epoch_to_readable_date(epoch_time):
     return time.strftime('%d.%m.%Y', time.gmtime(int(float(epoch_time))))
 
+def epoch_to_readable_time(epoch_time):
+    return time.strftime('%H:%M', time.gmtime(int(float(epoch_time))))
 
 def current_hour():
     return time.strftime('%H', time.gmtime(epoch_now()))

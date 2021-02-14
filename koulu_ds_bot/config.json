@@ -1,6 +1,7 @@
 {
     "commandPrefix": "!",
     "databasePath": "src/db/koulubot.db",
+    "logDirPath": "logs/",
     "events": [
         "ping",
         "uusikurssi",

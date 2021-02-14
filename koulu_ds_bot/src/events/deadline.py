@@ -38,7 +38,7 @@ async def deadline(context, timestamp=None, *msg):
 
 
     q = ('INSERT INTO deadlines(course_id, timestamp, message) VALUES(?, ?, ?)',
-         (bound_course_id[0], epoch_time, msg))
+         (bound_course_id[0], int(epoch_time), msg))
     context.bot.database_query(q)
 
     e = Embed(

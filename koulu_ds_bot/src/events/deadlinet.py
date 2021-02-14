@@ -1,6 +1,6 @@
 from discord import Embed
 from discord.ext import commands
-from ..util.time_utils import epoch_to_readable
+from ..util.time_utils import epoch_to_readable_date
 
 @commands.command()
 async def deadlinet(context):
@@ -13,7 +13,7 @@ async def deadlinet(context):
 
     deadlines = '\n'.join(
         [
-            f'{get_course_title(deadline[1])} ({epoch_to_readable(deadline[2])}): {deadline[3]}'
+            f'{get_course_title(deadline[1])} ({epoch_to_readable_date(deadline[2])}): {deadline[3]}'
             for deadline
             in deadlines_list
         ]

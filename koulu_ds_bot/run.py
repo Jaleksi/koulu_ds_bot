@@ -9,11 +9,6 @@ if __name__ == '__main__':
     with open('./config.json', 'r') as json_file:
         config = json.load(json_file)
 
-    # init bot
+    # init and run bot
     bot = KouluBot(config)
-
-    # run bot
-    try:
-        bot.run(BOT_TOKEN)
-    except KeyboardInterrupt:
-        bot.logoout()
+    bot.run(BOT_TOKEN)

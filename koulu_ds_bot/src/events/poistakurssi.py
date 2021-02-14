@@ -1,3 +1,4 @@
+import logging
 from discord import Embed
 from discord.ext import commands
 
@@ -27,7 +28,7 @@ async def poistakurssi(context, peppi_id=None):
         await context.bot.get_channel(delete_this[2]).send(embed=e)
 
     except Exception as err:
-        print(err)
+        logging.error(err)
         await context.send(f'Kurssin poistaminen epäonnistui ({err})')
 
 def setup(bot):
