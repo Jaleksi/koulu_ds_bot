@@ -1,6 +1,6 @@
-import logging
 from discord import Embed
 from discord.ext import commands
+
 
 @commands.command()
 async def poistakurssi(context, peppi_id=None):
@@ -24,11 +24,19 @@ async def poistakurssi(context, peppi_id=None):
             q = (f'DELETE FROM {table} WHERE id=?', (delete_this[0],))
             context.bot.database_query(q)
 
-        e = Embed(title=f'Poistettiin kurssi {peppi_id} onnistuneesti', description=delete_this[1])
+        channel_name = context.bot.get_channel(delete_this[2])
+        context.bot.logger.info(
+            f'Removed course {peppi_id} from channel {channel_name}'
+        )
+
+        e = Embed(
+            title=f'Poistettiin kurssi {peppi_id} kanavalta {channel_name}',
+            description=delete_this[1]
+        )
         await context.bot.get_channel(delete_this[2]).send(embed=e)
 
     except Exception as err:
-        logging.error(err)
+        context.bot.logger.error(err)
         await context.send(f'Kurssin poistaminen epäonnistui ({err})')
 
 def setup(bot):

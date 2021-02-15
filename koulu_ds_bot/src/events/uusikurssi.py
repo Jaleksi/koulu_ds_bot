@@ -1,7 +1,8 @@
 from discord.ext import commands
 from discord import Embed, utils
 from ..api.peppi import get_course_info
-from ..util.time_utils import epoch_now
+from ..util.time_utils import epoch_now, gmt_plus_2
+
 
 @commands.command()
 async def uusikurssi(context, peppi_id=None, channel_name=None):
@@ -44,13 +45,19 @@ async def uusikurssi(context, peppi_id=None, channel_name=None):
     # add lecture times to db
     lectures = parse_lecture_times(data)
     for lecture in lectures:
-        q = ('INSERT INTO lectures(course_id, start_timestamp, end_timestamp, location) VALUES(?, ?, ?, ?)',
-             (new_entry_id, lecture['start'], lecture['end'], lecture['loc']))
+        q = ('INSERT INTO lectures(course_id, start_timestamp, end_timestamp, location, lecture_type) VALUES(?, ?, ?, ?, ?)',
+             (new_entry_id, lecture['start'], lecture['end'], lecture['loc'], lecture['type']))
         context.bot.database_query(q)
 
+    context.bot.logger.info(
+        f'Added new course {peppi_id} to channel {channel_name} ({len(lectures)} lectures).'
+    )
+
+    lecture_type_count = len(set([l['type'] for l in lectures]))
+
     e = Embed(
-        title=f'Yhdistettiin kurssi {peppi_id} onnistuneesti kanavaan {channel_name}',
-        description=course_title + f'\n Tulevia luentoja löytyi {len(lectures)} kpl'
+        title=f'Yhdistettiin kurssi {peppi_id} kanavaan {channel_name}',
+        description=course_title + f'\n Tulevia luentoja löytyi {len(lectures)} kpl ({lecture_type_count} eri luentotyyppiä)'
     )
     await context.bot.get_channel(channel_id).send(embed=e)
 
@@ -58,17 +65,21 @@ async def uusikurssi(context, peppi_id=None, channel_name=None):
 def parse_lecture_times(data):
     lectures = []
     now = epoch_now()
+
     for lecture in data['reservations']:
+        # convert to seconds from milliseconds and add gmt+2
+        lecture_start = gmt_plus_2(int(lecture['startTime'] / 1000))
+        lecture_end = gmt_plus_2(int(lecture['endTime'] / 1000))
+
         # ignore passed lectures.
-        # data has 3 trailing zeroes.
-        lecture_start = int(lecture['startTime'] / 1000)
         if now > lecture_start:
             continue
 
         lectures.append({
             'start': lecture_start,
-            'end': lecture['endTime'],
-            'loc': lecture['location']
+            'end': lecture_end,
+            'loc': lecture['location'],
+            'type': lecture['resourceIds'][0]
         })
 
     return lectures

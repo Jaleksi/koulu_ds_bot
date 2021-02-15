@@ -1,6 +1,7 @@
 import sqlite3
 import logging
-from discord.ext.commands import Bot
+from logging.handlers import RotatingFileHandler
+from discord.ext.commands import Bot, CommandNotFound
 from discord.ext import tasks
 from discord import Embed
 from .util.time_utils import current_hour, epoch_now, epoch_to_readable_time
@@ -9,6 +10,8 @@ class KouluBot(Bot):
     def __init__(self, config: dict):
         self.config = config
         self.database = None
+        self.logger = None
+        self.last_deadlines_check = 0
         self.db_table_titles = self.config['db_tables']
         super().__init__(command_prefix=self.config['commandPrefix'])
         self.init_logging()
@@ -17,18 +20,30 @@ class KouluBot(Bot):
 
     def init_logging(self):
         start_time = epoch_now()
-        logging.basicConfig(
-            filename=f'{self.config["logDirPath"]}/{start_time}.log',
-            level=logging.DEBUG,
-            format='%(asctime)s %(levelname)-8s %(message)s',
-            datefmt='[%d.%m.%Y %H:%M:%S]'
+        log_path = f'{self.config["logDirPath"]}/{start_time}.log'
+
+        handler = RotatingFileHandler(
+            filename=log_path,
+            maxBytes=4096
         )
-        logging.info(f'Started logging at epoch {epoch_to_readable_time(start_time)}')
+
+        logging.basicConfig(
+            level=logging.INFO,
+            format='%(asctime)s %(levelname)-8s %(message)s',
+            datefmt='[%d.%m.%Y %H:%M:%S]',
+            handlers = [
+                handler,
+                logging.StreamHandler()
+            ]
+        )
+
+        self.logger = logging.getLogger('bot_logger')
+        self.logger.info(f'Started logging at epoch {epoch_to_readable_time(start_time)}')
 
     def init_database(self):
         try:
             self.database = sqlite3.connect(self.config['databasePath'])
-            logging.info(f'Database {self.config["databasePath"]} connected successfully')
+            self.logger.info(f'Database {self.config["databasePath"]} connected successfully')
 
             # make sure tables exists
             q = ('''CREATE TABLE IF NOT EXISTS courses (
@@ -48,31 +63,32 @@ class KouluBot(Bot):
                         );
                  ''',)
             self.database_query(q)
-            
+
             q = ('''CREATE TABLE IF NOT EXISTS lectures (
                         id integer PRIMARY KEY AUTOINCREMENT,
                         course_id integer,
                         start_timestamp text,
                         end_timestamp text,
-                        location text
+                        location text,
+                        lecture_type text
                         );
                  ''',)
             self.database_query(q)
 
         except Exception as err:
-            logging.error(f'Error while creating database at {self.config["databasePath"]}')
-            logging.error(err)
+            self.logger.error(f'Error while creating database at {self.config["databasePath"]}')
+            self.logger.error(err)
             raise
 
     def init_commands(self):
         for ev in self.config['events']:
             try:
                 self.load_extension(f'src.events.{ev}')
-                logging.info(f'Successfully loaded event: {ev}')
+                self.logger.info(f'Successfully loaded event: {ev}')
 
             except Exception as err:
-                logging.warning(f'Failed to load event: {ev}')
-                logging.warning(err)
+                self.logger.warning(f'Failed to load event: {ev}')
+                self.logger.warning(err)
 
     def database_query(self, query):
         cursor = self.database.cursor()
@@ -84,38 +100,43 @@ class KouluBot(Bot):
         cursor = self.database.cursor()
         cursor.execute(*query)
         return cursor.fetchall() if fetch_all else cursor.fetchone()
-    
+
     async def on_ready(self):
-        logging.info(f'Logged in as {self.user}')
+        self.logger.info(f'Logged in as {self.user}')
         self.alarms_checker.start()
-        logging.info('Alarms checker started')
+        self.logger.info('Alarms checker started')
 
     @tasks.loop(seconds=10)
     async def alarms_checker(self):
-        if int(current_hour()) + 2 == 12: # returns gmt-time, FIN time is +2
-            await self.check_deadlines()
+        await self.check_deadlines()
         await self.check_lecture_times()
 
     async def check_deadlines(self):
-        logging.debug('Checking deadlines')
-        now = epoch_now()
-        q = (f'SELECT * FROM deadlines WHERE timestamp < {now}',)
+        time_since_last_check = epoch_now() - self.last_deadlines_check
+        twelve_hours = 43200
+
+        if current_hour() != 12 or time_since_last_check < twelve_hours:
+            return
+
+        self.logger.debug('Checking deadlines')
+        self.last_deadlines_check = epoch_now()
+        q = (f'SELECT * FROM deadlines WHERE timestamp < {self.last_deadlines_check}',)
         triggered_deadlines = self.database_return(q, fetch_all=True)
 
         if not triggered_deadlines:
-            logging.debug('No deadlines triggered')
+            self.logger.debug('No deadlines triggered')
             return
-        
-        logging.debug(f'Triggered {len(triggered_deadlines)} deadlines')
+
+        self.logger.debug(f'Triggered {len(triggered_deadlines)} deadlines')
 
         for triggered in triggered_deadlines:
             channel_id = self.database_return((f'SELECT channel_id FROM courses WHERE id={triggered[1]}',))[0]
-            e = Embed(title="Deadlinemuistutus", description=f'Tänään on viimeinen päivä hoitaa {triggered[3]}')
+            e = Embed(title='Deadlinemuistutus', description=f'Tänään on viimeinen päivä hoitaa {triggered[3]}')
             self.database_query((f'DELETE FROM deadlines WHERE id={triggered[0]}',))
             await self.get_channel(channel_id).send(embed=e)
 
     async def check_lecture_times(self):
-        logging.debug('Checking lecture times')
+        self.logger.debug('Checking lecture times')
         fifteen_minutes = 900
         trigger_time = epoch_now() + fifteen_minutes
 
@@ -123,15 +144,16 @@ class KouluBot(Bot):
         triggered_lectures = self.database_return(q, fetch_all=True)
 
         if not triggered_lectures:
-            logging.debug('No lecture times triggered')
+            self.logger.debug('No lecture times triggered')
             return
-        
-        logging.debug(f'Triggered {len(triggered_lectures)} lectures')
+
+        self.logger.debug(f'Triggered {len(triggered_lectures)} lectures')
 
         for triggered in triggered_lectures:
             channel_id = self.database_return((f'SELECT channel_id FROM courses WHERE id={triggered[1]}',))[0]
-            desc = f'Luento {epoch_to_readable_time(triggered[2])} - {epoch_to_readable_time(triggered[3])}'
-            desc += f'\nLuennon sijainniksi on ilmoitettu: {triggered[4]}'
-            e = Embed(title="Luentomuistutus", description=desc)
+            desc = f'Ajankohta {epoch_to_readable_time(triggered[2])} - {epoch_to_readable_time(triggered[3])}'
+            desc += f'\nIlmoitettu sijainti: {triggered[4]}'
+            desc += f'\nLuentotyyppi: {triggered[5]}'
+            e = Embed(title='Luentomuistutus', description=desc)
             self.database_query((f'DELETE FROM lectures WHERE id={triggered[0]}',))
             await self.get_channel(channel_id).send(embed=e)

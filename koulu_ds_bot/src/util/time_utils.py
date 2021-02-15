@@ -2,7 +2,7 @@ import time
 
 
 def epoch_now():
-    return int(time.time())
+    return int(gmt_plus_2(time.time()))
 
 
 def remove_leading_digits_from_year(timestamp, delimiter):
@@ -19,11 +19,18 @@ def timestamp_to_epoch(timestamp, delimiter):
     return epoch_time
 
 
+def gmt_plus_2(timestamp):
+    two_hours_in_seconds = 7200
+    return timestamp + two_hours_in_seconds
+
+
 def epoch_to_readable_date(epoch_time):
     return time.strftime('%d.%m.%Y', time.gmtime(int(float(epoch_time))))
+
 
 def epoch_to_readable_time(epoch_time):
     return time.strftime('%H:%M', time.gmtime(int(float(epoch_time))))
 
+
 def current_hour():
-    return time.strftime('%H', time.gmtime(epoch_now()))
+    return int(time.strftime('%H', time.gmtime(epoch_now())))

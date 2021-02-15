@@ -41,6 +41,8 @@ async def deadline(context, timestamp=None, *msg):
          (bound_course_id[0], int(epoch_time), msg))
     context.bot.database_query(q)
 
+    context.bot.logger.info(f'Added new deadline {msg} ({timestamp})')
+
     e = Embed(
         title=f'Tallennettiin deadline: {msg}',
         description=f'Deadlinesta muistutetaan {timestamp} kanavalla {context.channel.name}'
