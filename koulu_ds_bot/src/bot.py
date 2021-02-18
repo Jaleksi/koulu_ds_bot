@@ -12,7 +12,6 @@ class KouluBot(Bot):
         self.database = None
         self.logger = None
         self.last_deadlines_check = 0
-        self.db_table_titles = self.config['db_tables']
         super().__init__(command_prefix=self.config['commandPrefix'])
         self.init_logging()
         self.init_database()
@@ -106,7 +105,7 @@ class KouluBot(Bot):
         self.alarms_checker.start()
         self.logger.info('Alarms checker started')
 
-    @tasks.loop(seconds=10)
+    @tasks.loop(minutes=10)
     async def alarms_checker(self):
         await self.check_deadlines()
         await self.check_lecture_times()

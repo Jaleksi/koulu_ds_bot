@@ -6,11 +6,11 @@ prefix/etuliite = `!`
 |--|--|--|--|
 |ping|Ei argumentteja|Lähinnä testaukseen, botti vastaa komentoon "pong".|`!ping`|
 |uusikurssi|Kurssin tunniste (+ kanava johon liitetään)|Hakee kurssin tiedot ja liittää sen halutulle kanavalle. Jos kanavaa ei määritellä valitsee kanavan jolta käsky annettiin.|`!uusikurssi 902150Y englanti_kanava`|
-|poistakurssi|Poistettavan kurssin tunniste|Poistaa kurssin tiedot databasesta ja katkaisee yhteyden sen kanavaan|`!poistakurssi 902150Y`|
+|poistakurssi|Poistettavan kurssin tunniste|Poistaa kurssin tiedot databasesta ja katkaisee yhteyden sen kanavaan.|`!poistakurssi 902150Y`|
 |kurssit|Ei argumentteja|Listaa tallennetut kurssit|`!kurssit`|
 |deadline|Päivämäärä + viesti|Yhdistää siihen kurssiin deadlinen, millä kanavalla komento suoritetaan.|`!deadline 12.5.21 essee`|
-|deadlinet|Ei argumentteja|Listaa kaikki tallennetut deadlinet|`!deadlinet`|
-|tori|Ei argumentteja|Hakee Oulun kaupungin nettisivuilla päivittyvän livekuvan torilta ja lähettää sen kanavalle.|`!tori`|
+|deadlinet|Ei argumentteja|Listaa kaikki tallennetut deadlinet.|`!deadlinet`|
+|lueics|Liitetiedosto ics-kalenteri|Lukee Moodlesta ladatun kalenteritiedoston ja tallettaa siihen kurssiin liittyvät deadlinet, jonka kanavalta käsky annettiin.|`!lueics`|
 
 ## Database schemat
 ### Kurssitaulukko (courses)
@@ -26,7 +26,7 @@ prefix/etuliite = `!`
 |__Esimerkki__|`2`|`1`|`1613133521`|`Esseen palautus`|
 
 ### Luentoajat -taulukko (lectures)
-||id (integer)|course_id (integer)|start_timestamp (text)|end_timestamp (text)|location (text)|
-|--|--|--|--|--|--|
-|__Selitys__|Luentoajan juokseva tunniste|Kurssin id, jonka luento on kyseessä|Luennon alkamisajan kohta epoch-muodossa|Luennon loppumisajankohta epoch-muodossa|Luennon sijainti|
-|__Esimerkki__|`5`|`4`|`1613133761`|`1613138365`|`Zoom`|
+||id (integer)|course_id (integer)|start_timestamp (text)|end_timestamp (text)|location (text)|lecture_type (text)|
+|--|--|--|--|--|--|--|
+|__Selitys__|Luentoajan juokseva tunniste|Kurssin id, jonka luento on kyseessä|Luennon alkamisajan kohta epoch-muodossa|Luennon loppumisajankohta epoch-muodossa|Luennon sijainti|Luentotyypin id, esim. aina tiistaisin klo 10 alkavilla luennoilla on sama luentotyyppi|
+|__Esimerkki__|`5`|`4`|`1613133761`|`1613138365`|`Zoom`|`2148`|

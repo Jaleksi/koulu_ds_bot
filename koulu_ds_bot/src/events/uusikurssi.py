@@ -1,6 +1,7 @@
 from discord.ext import commands
 from discord import Embed, utils
 from ..api.peppi import get_course_info
+from ..api.moodle import get_calendar_dl_link
 from ..util.time_utils import epoch_now, gmt_plus_2
 
 
@@ -55,9 +56,14 @@ async def uusikurssi(context, peppi_id=None, channel_name=None):
 
     lecture_type_count = len(set([l['type'] for l in lectures]))
 
+    desc = f'{course_title}\n Tulevia luentoja löytyi {len(lectures)} kpl ({lecture_type_count} eri luentotyyppiä)'
+    calendar_url = get_calendar_dl_link(peppi_id)
+    if calendar_url:
+        desc += f'\n[Kalenterilinkki]({calendar_url})'
+
     e = Embed(
         title=f'Yhdistettiin kurssi {peppi_id} kanavaan {channel_name}',
-        description=course_title + f'\n Tulevia luentoja löytyi {len(lectures)} kpl ({lecture_type_count} eri luentotyyppiä)'
+        description=desc
     )
     await context.bot.get_channel(channel_id).send(embed=e)
 
