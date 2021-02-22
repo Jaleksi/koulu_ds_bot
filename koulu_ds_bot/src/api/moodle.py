@@ -27,7 +27,7 @@ def get_moodle_id(course_id):
         if parsed_id:
             return parsed_id
 
-    return False
+    return None
 
 
 def get_calendar_dl_link(course_id):
@@ -38,4 +38,4 @@ def get_calendar_dl_link(course_id):
     '''
     base_url = 'https://moodle.oulu.fi/calendar/export.php?course='
     moodle_id = get_moodle_id(course_id)
-    return base_url + moodle_id if moodle_id else False
+    return base_url + moodle_id if moodle_id else None

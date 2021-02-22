@@ -24,7 +24,10 @@ def gmt_plus_2(timestamp):
     return timestamp + two_hours_in_seconds
 
 
-def epoch_to_readable_date(epoch_time):
+def epoch_to_readable_date(epoch_time, exclude_year=False):
+    if exclude_year:
+        return time.strftime('%d.%m.', time.gmtime(int(float(epoch_time))))
+
     return time.strftime('%d.%m.%Y', time.gmtime(int(float(epoch_time))))
 
 
@@ -43,3 +46,22 @@ def ics_format_to_epoch(ics_dt):
     day = ics_dt[6:8]
 
     return timestamp_to_epoch(f'{day}/{month}/{year}', '/')
+
+
+def epoch_to_lecture_time(start_epoch, end_epoch):
+    # return format "Ma 19.2. 14:00-16:00"
+    weekdays_fi = {
+        'Mon': 'Ma',
+        'Tue': 'Ti',
+        'Wed': 'Ke',
+        'Thu': 'To',
+        'Fri': 'Pe',
+        'Sat': 'La',
+        'Sun': 'Su'
+    }
+    wkday = weekdays_fi[time.strftime('%a', time.gmtime(int(start_epoch)))]
+    start_time = epoch_to_readable_time(start_epoch)
+    end_time = epoch_to_readable_time(end_epoch)
+    date = epoch_to_readable_date(start_epoch, True)
+
+    return f'{wkday} {date} {start_time}-{end_time}'
