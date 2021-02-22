@@ -1,7 +1,7 @@
 import json
 
 from src.bot import KouluBot
-from secret import DEV_TOKEN
+from secret import BOT_TOKEN
 
 
 if __name__ == '__main__':
@@ -11,4 +11,4 @@ if __name__ == '__main__':
 
     # init and run bot
     bot = KouluBot(config)
-    bot.run(DEV_TOKEN)
+    bot.run(BOT_TOKEN)

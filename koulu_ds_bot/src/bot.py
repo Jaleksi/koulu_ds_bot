@@ -110,7 +110,7 @@ class KouluBot(Bot):
         self.alarms_checker.start()
         self.logger.info('Alarms checker started')
 
-    @tasks.loop(seconds=10)
+    @tasks.loop(minutes=10)
     async def alarms_checker(self):
         # Check deadlines only once a day at 12 o'clock
         time_since_last_check = epoch_now() - self.last_deadlines_check
