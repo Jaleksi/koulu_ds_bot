@@ -115,7 +115,7 @@ class KouluBot(Bot):
         # Check deadlines only once a day at 12 o'clock
         time_since_last_check = epoch_now() - self.last_deadlines_check
         twelve_hours = 43200
-        if current_hour() == 12 and time_since_last_check < twelve_hours:
+        if current_hour() == 12 and time_since_last_check > twelve_hours:
             self.last_deadlines_check = epoch_now()
             await self.check_deadlines()
 
