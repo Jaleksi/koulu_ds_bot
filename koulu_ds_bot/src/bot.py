@@ -160,7 +160,7 @@ class KouluBot(Bot):
                     courses.channel_id
                 FROM lectures
                 INNER JOIN followed_lecture_types ON
-                    lectures.lecture_type=followed_lecture_types.lecture_type
+                    followed_lecture_types.lecture_type=lectures.lecture_type
                 INNER JOIN courses ON
                     courses.id=followed_lecture_types.course_id
                 WHERE lectures.start_timestamp < ?

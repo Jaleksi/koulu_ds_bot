@@ -8,7 +8,7 @@ async def seuraa(context, lecture_type=None, *title):
         return
 
     # join title into a string if it's multiple words
-    title = ' '.join(title)
+    title = ' '.join(title) if title else 'Luento'
 
     # get channel id
     channel_id = utils.get(context.guild.channels, name=context.channel.name).id
