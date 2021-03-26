@@ -33,7 +33,7 @@ async def luennot(context):
         ]
     )
 
-    e = Embed(title=f'Luennot {bound_course[3]}', description=lectures)
+    e = Embed(title=f'Luennot {bound_course[2]}', description=lectures)
     await context.send(embed=e)
 
 def setup(bot):

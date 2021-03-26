@@ -94,7 +94,7 @@ class DatabaseManager:
         '''
         course_id = self.get_course_by_peppi_id(peppi_id)[0]
         for table in ['deadlines', 'lectures', 'followed_lecture_types']:
-            self.query((f'DELETE FROM {table} WHERE id=?', (course_id,)))
+            self.query((f'DELETE FROM {table} WHERE course_id=?', (course_id,)))
         self.query(('DELETE FROM courses WHERE peppi_id=?', (peppi_id,)))
 
     def delete_followed_lecture(self, lecture_id):
