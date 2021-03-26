@@ -21,7 +21,7 @@ async def deadlinet(context):
             in deadlines_list
         ]
     )
-    e = Embed(title=f'Deadlinet', description=deadlines)
+    e = Embed(title=f'Deadlinet', description=deadlines[:2048])
     await context.send(embed=e)
 
 def setup(bot):
