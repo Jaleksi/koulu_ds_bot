@@ -7,9 +7,7 @@ from ..util.time_utils import epoch_to_readable_date, gmt_plus_2
 async def lueics(context):
     channel_id = utils.get(context.guild.channels, name=context.channel.name).id
     # make sure channel is connected to course
-    q = ('SELECT id, peppi_id FROM courses WHERE channel_id=?', (channel_id,))
-    # bound_course = [id, peppi_id]
-    bound_course = context.bot.database_return(q, fetch_all=False)
+    bound_course = context.bot.db.get_course_by_channel_id(channel_id)
     if not bound_course:
         await context.send('Tähän kanavaan ei ole liitetty kurssia.')
         return
@@ -17,7 +15,6 @@ async def lueics(context):
     # read attachments
     attachments = context.message.attachments
 
-    # make sure there is attachment
     if not attachments:
         await context.send('Lisää liitetiedostoksi .ics kalenteri')
         return
@@ -32,7 +29,6 @@ async def lueics(context):
     # parse events from calendar
     ics_file = await attachments[0].read()
     events = parse_events_from_ics(ics_file)
-
     added_deadlines = ''
     found_deadlines = 0
 
@@ -41,12 +37,9 @@ async def lueics(context):
             ts = event.get('timestamp')
             ts = gmt_plus_2(ts)
             msg = event.get('msg', 'Ei tarkempaa tietoa')
-            q = ('INSERT INTO deadlines(course_id, timestamp, message) VALUES(?, ?, ?)',
-                (bound_course[0], ts, msg))
+            context.bot.db.insert_new_deadline(bound_course[0], ts, msg)
             added_deadlines += f'({epoch_to_readable_date(ts)}): {msg}\n\n'
             found_deadlines += 1
-            context.bot.database_query(q)
-            context.bot.logger.info(f'Added new deadline from ics {msg} ({epoch_to_readable_date(ts)})')
 
     e = Embed(
         title=f'Tiedostosta haettiin {found_deadlines} tapahtumaa',

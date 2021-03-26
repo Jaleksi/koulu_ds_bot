@@ -30,17 +30,12 @@ async def deadline(context, timestamp=None, *msg):
     channel_id = utils.get(context.guild.channels, name=context.channel.name).id
 
     # check if channel is connected to a course
-    q = ('SELECT id FROM courses WHERE channel_id=?', (channel_id,))
-    bound_course_id = context.bot.database_return(q, fetch_all=False)
-    if not bound_course_id:
+    bound_course = context.bot.db.get_course_by_channel_id(channel_id)
+    if not bound_course:
         await context.send('Tähän kanavaan ei ole liitetty kurssia.')
         return
 
-
-    q = ('INSERT INTO deadlines(course_id, timestamp, message) VALUES(?, ?, ?)',
-         (bound_course_id[0], int(epoch_time), msg))
-    context.bot.database_query(q)
-
+    context.bot.db.insert_new_deadline(bound_course[0], int(epoch_time), msg)
     context.bot.logger.info(f'Added new deadline {msg} ({timestamp})')
 
     e = Embed(

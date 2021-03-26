@@ -1,4 +1,4 @@
-from discord import Embed
+from discord import Embed, utils
 from discord.ext import commands
 
 
@@ -8,39 +8,26 @@ async def poistaseuraus(context, lecture_type=None):
         await context.send('Anna argumenttina luentotyyppi id esim. 283777')
         return
 
-    try:
-        q = ('''SELECT
-                    followed_lecture_types.id,
-                    followed_lecture_types.title,
-                    courses.channel_id
-                FROM
-                    followed_lecture_types
-                INNER JOIN
-                    courses
-                ON
-                    courses.id=followed_lecture_types.course_id
-                WHERE
-                    followed_lecture_types.lecture_type=?
-             ''', (lecture_type,))
-        delete_this = context.bot.database_return(q, fetch_all=False)
+    channel_id = utils.get(context.guild.channels, name=context.channel.name).id
+    bound_course = context.bot.db.get_course_by_channel_id(channel_id)
+    if not bound_course:
+        await context.send('Tähän kanavaan ei ole liitetty kurssia')
+        return
 
-        if not delete_this:
-            await context.send('Seurattua luentotyyppiä ei löytynyt')
-            return
+    delete_this = context.bot.db.get_course_followed_lecture_by_type(bound_course[0], lecture_type)
 
-        q = ('DELETE FROM followed_lecture_types WHERE id=?', (delete_this[0],))
-        context.bot.database_query(q)
-        context.bot.logger.info(f'Stopped following course type {lecture_type} ({delete_this[1]})')
+    if not delete_this:
+        await context.send('Seurattua luentotyyppiä ei löytynyt')
+        return
+    context.bot.db.delete_followed_lecture(delete_this[0])
+    context.bot.logger.info(f'Stopped following course type {lecture_type} ({delete_this[3]})')
 
-        e = Embed(
-            title='Poistettiin luentotyypin seuranta',
-            description=f'**{lecture_type}**: {delete_this[1]}'
-        )
-        await context.bot.get_channel(delete_this[2]).send(embed=e)
+    e = Embed(
+        title='Poistettiin luentotyypin seuranta',
+        description=f'**{lecture_type}**: {delete_this[3]}'
+    )
+    await context.send(embed=e)
 
-    except Exception as err:
-        context.bot.logger.error(err)
-        await context.send(f'Seurauksen poistaminen epäonnistui ({err})')
 
 def setup(bot):
     bot.add_command(poistaseuraus)

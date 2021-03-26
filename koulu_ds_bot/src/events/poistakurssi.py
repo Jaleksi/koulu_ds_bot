@@ -9,35 +9,29 @@ async def poistakurssi(context, peppi_id=None):
         return
 
     try:
-        q = ('SELECT id, title, channel_id FROM courses WHERE peppi_id=?', (peppi_id,))
-        delete_this = context.bot.database_return(q, fetch_all=False)
+        delete_this = context.bot.db.get_course_by_peppi_id(peppi_id)
 
         if not delete_this:
             await context.send('Kurssia ei löytynyt')
             return
 
-        q = ('DELETE FROM courses WHERE peppi_id=?', (peppi_id,))
-        context.bot.database_query(q)
+        context.bot.db.delete_course_by_peppi_id(peppi_id)
 
-        # Delete deadlines and lectures connected to the course
-        for table in ['deadlines', 'lectures']:
-            q = (f'DELETE FROM {table} WHERE id=?', (delete_this[0],))
-            context.bot.database_query(q)
-
-        channel_name = context.bot.get_channel(delete_this[2])
+        channel = context.bot.get_channel(delete_this[3])
         context.bot.logger.info(
-            f'Removed course {peppi_id} from channel {channel_name}'
+            f'Removed course {peppi_id} from channel {channel}'
         )
 
         e = Embed(
-            title=f'Poistettiin kurssi {peppi_id} kanavalta {channel_name}',
-            description=delete_this[1]
+            title=f'Poistettiin kurssi {peppi_id} kanavalta {channel}',
+            description=delete_this[2]
         )
-        await context.bot.get_channel(delete_this[2]).send(embed=e)
+        await channel.send(embed=e)
 
     except Exception as err:
         context.bot.logger.error(err)
         await context.send(f'Kurssin poistaminen epäonnistui ({err})')
+        raise
 
 def setup(bot):
     bot.add_command(poistakurssi)

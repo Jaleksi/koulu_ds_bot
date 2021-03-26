@@ -23,9 +23,8 @@ async def uusikurssi(context, peppi_id=None, channel_name=None):
     channel_id = utils.get(context.guild.channels, name=channel_name).id
 
     # Check if course is already in database
-    q = ('SELECT * FROM courses WHERE peppi_id=?', (peppi_id,))
-    duplicates = context.bot.database_return(q, fetch_all=True)
-    if duplicates:
+    already_exists = context.bot.db.get_course_by_peppi_id(peppi_id)
+    if already_exists:
         await context.send('Kurssi on jo lisätty')
         return
 
@@ -38,17 +37,8 @@ async def uusikurssi(context, peppi_id=None, channel_name=None):
 
     course_title = data['name']['valueFi']
 
-    q = ('INSERT INTO courses(peppi_id, title, channel_id) VALUES(?, ?, ?)',
-         (peppi_id, course_title, channel_id))
-    new_entry_id = context.bot.database_query(q)
-
-
-    # add lecture times to db
     lectures = parse_lecture_times(data)
-    for lecture in lectures:
-        q = ('INSERT INTO lectures(course_id, start_timestamp, end_timestamp, location, lecture_type) VALUES(?, ?, ?, ?, ?)',
-             (new_entry_id, lecture['start'], lecture['end'], lecture['loc'], lecture['type']))
-        context.bot.database_query(q)
+    context.bot.db.insert_new_course(peppi_id, course_title, channel_id, lectures)
 
     context.bot.logger.info(
         f'Added new course {peppi_id} to channel {channel_name} ({len(lectures)} lectures).'

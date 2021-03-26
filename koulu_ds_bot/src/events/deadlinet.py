@@ -5,26 +5,14 @@ from ..util.time_utils import epoch_to_readable_date
 @commands.command()
 async def deadlinet(context):
     channel_id = utils.get(context.guild.channels, name=context.channel.name).id
-    
-    # check if channel is connected to a course
-    q = ('SELECT id FROM courses WHERE channel_id=?', (channel_id,))
-    bound_course_id = context.bot.database_return(q, fetch_all=False)
+    bound_course = context.bot.db.get_course_by_channel_id(channel_id)
+
     # if channel is not connected to a course, get all deadlines
     # otherwise get only deadlines on that course
-    # query returns [(title, timestamp, message)...]
-    if not bound_course_id:
-        q = ('''SELECT courses.title, deadlines.timestamp, deadlines.message
-                FROM deadlines
-                INNER JOIN courses ON deadlines.course_id=courses.id
-                ORDER BY timestamp''',)
-        deadlines_list = context.bot.database_return(q, fetch_all=True)
+    if not bound_course:
+        deadlines_list = context.bot.db.get_all_deadlines()
     else:
-        q = ('''SELECT courses.title, deadlines.timestamp, deadlines.message
-                FROM deadlines
-                INNER JOIN courses ON deadlines.course_id=courses.id
-                WHERE courses.channel_id=?
-                ORDER BY deadlines.timestamp''', (channel_id,))
-        deadlines_list = context.bot.database_return(q, fetch_all=True)
+        deadlines_list = context.bot.db.get_course_deadlines(bound_course[0])
 
     deadlines = '\n'.join(
         [
