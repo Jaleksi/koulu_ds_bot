@@ -19,8 +19,8 @@ prefix/etuliite = `!`
 ## Botin loopit
 ||Aikaväli|Mitä tekee|
 |--|--|--|
-|__Deadline-tarkistus__|Kerran päivässä klo 12|Tarkistaa onko päivälle merkittynä deadlineja ja ilmoittaa niistä oikeilla kanavilla|
-|__Luentomuistutukset__|10 min välein|Tarkistaa onko seurattu luento alkamassa 15min sisällä, jos on niin ilmoittaa oikealla kanavalla|
+|__Deadline-tarkistus__|10 min|Tarkistaa onko deadlinet ja ilmoittaa niistä oikeilla kanavilla|
+|__Luentomuistutukset__|10 min|Tarkistaa onko seurattu luento alkamassa 15min sisällä, jos on niin ilmoittaa oikealla kanavalla|
 
 ## Database schemat
 ### Kurssitaulukko (courses)
@@ -38,7 +38,7 @@ prefix/etuliite = `!`
 ### Luentoajat -taulukko (lectures)
 ||id (integer)|course_id (integer)|start_timestamp (integer)|end_timestamp (integer)|location (text)|lecture_type (text)|
 |--|--|--|--|--|--|--|
-|__Selitys__|Luentoajan juokseva tunniste|Kurssin id, jonka luento on kyseessä|Luennon alkamisajan kohta epoch-muodossa|Luennon loppumisajankohta epoch-muodossa|Luennon sijainti|Luentotyypin id, esim. aina tiistaisin klo 10 alkavilla luennoilla on sama luentotyyppi|
+|__Selitys__|Luentoajan juokseva tunniste|Kurssin id, jonka luento on kyseessä|Luennon alkamisajan kohta epoch-muodossa|Luennon loppumisajankohta epoch-muodossa|Luennon sijainti|Luentotyyppi, Pepin antama id luennolle|
 |__Esimerkki__|`5`|`4`|`1613133761`|`1613138365`|`Zoom`|`2148`|
 
 ### Seuratut luentotyypit -taulukko (followed_lecture_types)
