@@ -4,27 +4,25 @@ from discord import Embed, utils
 from ..util.time_utils import epoch_now, remove_leading_digits_from_year, timestamp_to_epoch
 
 @commands.command()
-async def deadline(context, date=None, *msg):
-    if date is None or len(msg) == 0:
+async def deadline(context, timestamp=None, *msg):
+    if timestamp is None or len(msg) == 0:
         await context.send('Anna argumenttina kurssin aika ja viesti esim. 12/4/2021 tentti')
         return
 
     # join message into a string if it's multiple words
     msg = ' '.join(msg)
 
-    # check if date items are separated with . or /
-    delimiter = '/' if '/' in date else '.'
+    # check if timestamp items are separated with . or /
+    delimiter = '/' if '/' in timestamp else '.'
 
     # check if year was given in 4 numbers, strip first 2 if it is
-    date = remove_leading_digits_from_year(date, delimiter)
+    timestamp = remove_leading_digits_from_year(timestamp, delimiter)
 
     # create time object from strings
-    epoch_time = timestamp_to_epoch(date, delimiter)
+    epoch_time = timestamp_to_epoch(timestamp, delimiter)
+    now = epoch_now()
 
-    # add 10 hours to epoch time to default alert at 10am
-    epoch_time += 36000
-
-    if epoch_now() > epoch_time:
+    if now > epoch_time:
         await context.send('Päivämäärä on mennyt jo. Anna vähintään huominen.')
         return
 
@@ -38,11 +36,11 @@ async def deadline(context, date=None, *msg):
         return
 
     context.bot.db.insert_new_deadline(bound_course[0], int(epoch_time), msg)
-    context.bot.logger.info(f'Added new deadline {msg} ({date})')
+    context.bot.logger.info(f'Added new deadline {msg} ({timestamp})')
 
     e = Embed(
         title=f'Tallennettiin deadline: {msg}',
-        description=f'Deadlinesta muistutetaan {date} kanavalla {context.channel.name}'
+        description=f'Deadlinesta muistutetaan {timestamp} kanavalla {context.channel.name}'
     )
 
     await context.send(embed=e)

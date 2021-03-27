@@ -12,6 +12,7 @@ class KouluBot(Bot):
         self.config = config
         self.logger = None
         self.db = DatabaseManager(self.config['databasePath'])
+        self.last_deadlines_check = 0
         super().__init__(command_prefix=self.config['commandPrefix'])
         self.init_logging()
         self.init_commands()
@@ -56,16 +57,18 @@ class KouluBot(Bot):
 
     @tasks.loop(minutes=10)
     async def alarms_checker(self):
-        # trigger events which have start time in less than 15 minutes
-        fifteen_minutes = 900
-        trigger_time = epoch_now() + fifteen_minutes
+        # Check deadlines only once a day at 12 o'clock
+        time_since_last_check = epoch_now() - self.last_deadlines_check
+        twelve_hours = 43200
+        if current_hour() == 12 and time_since_last_check > twelve_hours:
+            self.last_deadlines_check = epoch_now()
+            await self.check_deadlines()
 
-        await self.check_deadlines(trigger_time)
-        await self.check_lecture_times(trigger_time)
+        await self.check_lecture_times()
 
-    async def check_deadlines(self, trigger):
+    async def check_deadlines(self):
         self.logger.debug('Checking deadlines')
-        triggered_deadlines = self.db.fetch_triggered_deadlines(trigger)
+        triggered_deadlines = self.db.fetch_triggered_deadlines(self.last_deadlines_check)
 
         if not triggered_deadlines:
             self.logger.debug('No deadlines triggered')
@@ -78,9 +81,11 @@ class KouluBot(Bot):
             self.db.delete_deadline_by_id(triggered[0])
             await self.get_channel(triggered[2]).send(embed=e)
 
-    async def check_lecture_times(self, trigger):
+    async def check_lecture_times(self):
         self.logger.debug('Checking lecture times')
-        triggered_lectures = self.db.fetch_triggered_lectures(trigger)
+        fifteen_minutes = 900
+        trigger_time = epoch_now() + fifteen_minutes
+        triggered_lectures = self.db.fetch_triggered_lectures(trigger_time)
 
         if not triggered_lectures:
             self.logger.debug('No lecture times triggered')
