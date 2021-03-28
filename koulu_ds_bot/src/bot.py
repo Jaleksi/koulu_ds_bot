@@ -5,7 +5,9 @@ from discord.ext.commands import Bot, CommandNotFound
 from discord.ext import tasks
 from discord import Embed
 from .db.manager import DatabaseManager
+from .events.update_lecture_times import get_updated_lectures
 from .util.time_utils import current_hour, epoch_now, epoch_to_readable_time
+
 
 class KouluBot(Bot):
     def __init__(self, config):
@@ -63,6 +65,7 @@ class KouluBot(Bot):
         if current_hour() == 12 and time_since_last_check > twelve_hours:
             self.last_deadlines_check = epoch_now()
             await self.check_deadlines()
+            await self.update_lectures()
 
         await self.check_lecture_times()
 
@@ -99,3 +102,23 @@ class KouluBot(Bot):
             e = Embed(title=triggered[4], description=desc)
             self.db.delete_lecture_by_id(triggered[0])
             await self.get_channel(triggered[5]).send(embed=e)
+
+    async def update_lectures(self):
+        self.logger.debug('Updating lectures')
+        all_courses = self.db.get_all_courses()
+
+        for course in all_courses:
+            # get courses latest lecture times
+            # course[1] = peppi_id
+            new_lecture_times = get_updated_lectures(course[1])
+
+            # if data wasn't found continue
+            if new_lecture_times is None:
+                continue
+
+            # remove old lecture times
+            self.db.delete_lectures_by_course_id(course[0])
+
+            # add updated lectures to db
+            for lecture in new_lecture_times:
+                self.db.insert_new_lecture(course[0], lecture)

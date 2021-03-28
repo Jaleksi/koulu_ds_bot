@@ -47,6 +47,13 @@ def ics_format_to_epoch(ics_dt):
 
     return timestamp_to_epoch(f'{day}/{month}/{year}', '/')
 
+def time_from_ics_stamp(ics_dt):
+    # "20210523T205900Z" to "20:59"
+    if ics_dt == 0:
+        return None
+    time_part = ics_dt.split('T')[1][:4]
+    return time_part[:2] + ':' + time_part[2:]
+
 
 def epoch_to_lecture_time(start_epoch, end_epoch):
     # return format "Ma 19.2. 14:00-16:00"

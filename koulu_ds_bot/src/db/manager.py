@@ -41,6 +41,13 @@ class DatabaseManager:
 
 
     def query(self, q):
+        '''
+            q (tuple): (query (str), query parameters (tuple)) or
+                       (query (str),)
+
+            Execute given query and parameters (optional)
+            return last modified item id
+        '''
         self.cursor.execute(*q)
         self.connection.commit()
         return self.cursor.lastrowid
@@ -85,6 +92,9 @@ class DatabaseManager:
     def delete_lecture_by_id(self, lecture_id):
         self.query(('DELETE FROM lectures WHERE id=?', (lecture_id,)))
 
+    def delete_lectures_by_course_id(self, course_id):
+        self.query(('DELETE FROM lectures WHERE course_id=?', (course_id,)))
+
     def delete_deadline_by_id(self, deadline_id):
         self.query(('DELETE FROM deadlines WHERE id=?', (deadline_id,)))
 
@@ -109,11 +119,9 @@ class DatabaseManager:
         q = ('SELECT * FROM courses WHERE peppi_id=?', (peppi_id,))
         return self.fetch(q)
 
-    def lecture_times_for_course(self, course_id):
+    def get_course_lectures(self, course_id):
         q = ('''SELECT
-                    lecture_type,
-                    start_timestamp,
-                    end_timestamp
+                    *
                 FROM
                     lectures
                 WHERE
@@ -186,30 +194,35 @@ class DatabaseManager:
         self.query(q)
 
     def insert_new_course(self, peppi_id, title, channel_id, lectures):
+        '''
+            peppi_id (str): course's peppi id
+            title (str): title for course
+            channel_id (str): to which channel is course tied to
+            lectures (list of dicts): list of lecture infos
+        '''
         q = ('''INSERT INTO
                     courses(peppi_id, title, channel_id)
                 VALUES(?, ?, ?)
              ''', (peppi_id, title, channel_id))
         entry_id = self.query(q)
 
-        q = '''INSERT INTO
+        for lecture in lectures:
+            self.insert_new_lecture(entry_id, lecture)
+
+    def insert_new_lecture(self, course_id, lecture):
+        '''
+            course_id (int): id for lecture's course
+            lecture (dict): lecture info (parsed in uusikurssi.py)
+        '''
+        q = ('''INSERT INTO
                     lectures(course_id,
                              start_timestamp,
                              end_timestamp,
                              location,
                              lecture_type)
                 VALUES(?, ?, ?, ?, ?)
-            '''
-        for lecture in lectures:
-            params = (
-                entry_id,
-                lecture['start'],
-                lecture['end'],
-                lecture['loc'],
-                lecture['type']
-            )
-            self.query((q, params))
-
+            ''', (course_id, lecture['start'], lecture['end'], lecture['loc'], lecture['type']))
+        self.query(q)
 
     def get_all_courses(self):
         return self.fetch(('SELECT * FROM courses',), fetch_all=True)

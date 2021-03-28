@@ -20,6 +20,7 @@ prefix/etuliite = `!`
 ||Aikaväli|Mitä tekee|
 |--|--|--|
 |__Deadline-tarkistus__|Kerran päivässä klo 12|Tarkistaa onko päivälle merkittynä deadlineja ja ilmoittaa niistä oikeilla kanavilla|
+|__Luentojen päivitys__|Kerran päivässä klo 12|Hakee kaikkien kurssien luentoajat uudestaan muutosten varalta|
 |__Luentomuistutukset__|10 min välein|Tarkistaa onko seurattu luento alkamassa 15min sisällä, jos on niin ilmoittaa oikealla kanavalla|
 
 ## Database schemat

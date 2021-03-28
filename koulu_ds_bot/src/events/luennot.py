@@ -13,16 +13,16 @@ async def luennot(context):
         await context.send('Tätä kanavaa ei ole yhdistetty mihinkään kurssiin')
         return
 
-    lectures_list = context.bot.db.lecture_times_for_course(bound_course[0])
+    lectures_list = context.bot.db.get_course_lectures(bound_course[0])
 
     # sort lectures by types into dict
     lectures_by_type = {}
     for lecture in lectures_list:
-        lecture_type = lecture[0]
+        lecture_type = lecture[5]
         if not lectures_by_type.get(lecture_type):
-            lectures_by_type[lecture_type] = [epoch_to_lecture_time(lecture[1], lecture[2])]
+            lectures_by_type[lecture_type] = [epoch_to_lecture_time(lecture[2], lecture[3])]
             continue
-        lectures_by_type[lecture_type].append(epoch_to_lecture_time(lecture[1], lecture[2]))
+        lectures_by_type[lecture_type].append(epoch_to_lecture_time(lecture[2], lecture[3]))
 
     lectures = '\n'.join(
         [
