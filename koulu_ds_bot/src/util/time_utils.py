@@ -21,7 +21,8 @@ def timestamp_to_epoch(timestamp, delimiter):
 
 def gmt_plus_2(timestamp):
     two_hours_in_seconds = 7200
-    return timestamp + two_hours_in_seconds
+    summer_time_savings = 3600
+    return timestamp + two_hours_in_seconds + summer_time_savings
 
 
 def epoch_to_readable_date(epoch_time, exclude_year=False):
