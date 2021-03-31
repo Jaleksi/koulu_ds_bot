@@ -62,7 +62,7 @@ def time_from_ics_stamp(ics_dt):
         hours += timezone_add
 
     mins = time_part[2:]
-    return f'[{hours}:{mins}]'
+    return f'{hours}:{mins}'
 
 
 def epoch_to_lecture_time(start_epoch, end_epoch):
