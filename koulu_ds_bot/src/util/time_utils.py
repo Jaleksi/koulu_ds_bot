@@ -53,7 +53,16 @@ def time_from_ics_stamp(ics_dt):
     if ics_dt == 0:
         return None
     time_part = ics_dt.split('T')[1][:4]
-    return time_part[:2] + ':' + time_part[2:]
+    hours = int(time_part[:2])
+    timezone_add = 3
+
+    if hours + timezone_add >= 24:
+        hours = hours + timezone_add - 24
+    else:
+        hours += timezone_add
+
+    mins = time_part[2:]
+    return f'[{hours}:{mins}]'
 
 
 def epoch_to_lecture_time(start_epoch, end_epoch):
