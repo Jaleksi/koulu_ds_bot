@@ -10,16 +10,15 @@ from .util.time_utils import current_hour, epoch_now, epoch_to_readable_time
 
 
 class KouluBot(Bot):
-    def __init__(self, config):
-        self.config = config
-        self.logger = None
-        self.db = DatabaseManager(self.config['databasePath'])
-        self.last_deadlines_check = 0
+    def __init__(self, config: dict) -> None:
+        self.config: dict = config
+        self.db: DatabaseManager = DatabaseManager(self.config['databasePath'])
+        self.last_deadlines_check: int = 0
         super().__init__(command_prefix=self.config['commandPrefix'])
-        self.init_logging()
+        self.logger: logging.Logger = self.init_logging()
         self.init_commands()
 
-    def init_logging(self):
+    def init_logging(self) -> logging.Logger:
         log_path = f'{self.config["logDirPath"]}/{epoch_now()}.log'
 
         handler = RotatingFileHandler(
@@ -39,10 +38,11 @@ class KouluBot(Bot):
             ]
         )
 
-        self.logger = logging.getLogger('bot_logger')
-        self.logger.info('Logging initiated')
+        logger = logging.getLogger('bot_logger')
+        logger.info('Logging initiated')
+        return logger
 
-    def init_commands(self):
+    def init_commands(self) -> None:
         for ev in self.config['events']:
             try:
                 self.load_extension(f'src.events.{ev}')
@@ -52,13 +52,13 @@ class KouluBot(Bot):
                 self.logger.warning(f'Failed to load event: {ev}')
                 self.logger.warning(err)
 
-    async def on_ready(self):
+    async def on_ready(self) -> None:
         self.logger.info(f'Logged in as {self.user}')
         self.alarms_checker.start()
         self.logger.info('Alarms checker started')
 
     @tasks.loop(minutes=10)
-    async def alarms_checker(self):
+    async def alarms_checker(self) -> None:
         # Check deadlines only once a day at 12 o'clock
         time_since_last_check = epoch_now() - self.last_deadlines_check
         twelve_hours = 43200
@@ -69,7 +69,7 @@ class KouluBot(Bot):
 
         await self.check_lecture_times()
 
-    async def check_deadlines(self):
+    async def check_deadlines(self) -> None:
         self.logger.debug('Checking deadlines')
         triggered_deadlines = self.db.fetch_triggered_deadlines(self.last_deadlines_check)
 
@@ -84,7 +84,7 @@ class KouluBot(Bot):
             self.db.delete_deadline_by_id(triggered[0])
             await self.get_channel(triggered[2]).send(embed=e)
 
-    async def check_lecture_times(self):
+    async def check_lecture_times(self) -> None:
         self.logger.debug('Checking lecture times')
         fifteen_minutes = 900
         trigger_time = epoch_now() + fifteen_minutes
@@ -103,7 +103,7 @@ class KouluBot(Bot):
             self.db.delete_lecture_by_id(triggered[0])
             await self.get_channel(triggered[5]).send(embed=e)
 
-    async def update_lectures(self):
+    async def update_lectures(self) -> None:
         self.logger.debug('Updating lectures')
         all_courses = self.db.get_all_courses()
 

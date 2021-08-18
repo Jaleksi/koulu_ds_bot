@@ -1,11 +1,12 @@
+from typing import Union
 import time
 
 
-def epoch_now():
+def epoch_now() -> int:
     return int(gmt_plus_2(time.time()))
 
 
-def remove_leading_digits_from_year(timestamp, delimiter):
+def remove_leading_digits_from_year(timestamp: str, delimiter: str) -> str:
     split_timestamp = timestamp.split(delimiter)
     if len(split_timestamp[-1]) == 4:
         year = split_timestamp[-1][2:]
@@ -13,34 +14,36 @@ def remove_leading_digits_from_year(timestamp, delimiter):
     return timestamp
 
 
-def timestamp_to_epoch(timestamp, delimiter):
+def timestamp_to_epoch(timestamp: str, delimiter: str) -> int:
     parsed_time = time.strptime(timestamp, f'%d{delimiter}%m{delimiter}%y')
     epoch_time = time.mktime(parsed_time)
     return int(epoch_time)
 
 
-def gmt_plus_2(timestamp):
+def gmt_plus_2(timestamp: int) -> int:
     two_hours_in_seconds = 7200
     summer_time_savings = 3600
     return timestamp + two_hours_in_seconds + summer_time_savings
 
 
-def epoch_to_readable_date(epoch_time, exclude_year=False):
+def epoch_to_readable_date(epoch_time: Union[int, str],
+                           exclude_year: bool = False
+                           ) -> str:
     if exclude_year:
         return time.strftime('%d.%m.', time.gmtime(int(float(epoch_time))))
 
     return time.strftime('%d.%m.%Y', time.gmtime(int(float(epoch_time))))
 
 
-def epoch_to_readable_time(epoch_time):
+def epoch_to_readable_time(epoch_time: Union[str, int]) -> str:
     return time.strftime('%H:%M', time.gmtime(int(float(epoch_time))))
 
 
-def current_hour():
+def current_hour() -> int:
     return int(time.strftime('%H', time.gmtime(epoch_now())))
 
 
-def ics_format_to_epoch(ics_dt):
+def ics_format_to_epoch(ics_dt: str) -> int:
     # ex. "20210523T205900Z"
     year = ics_dt[2:4]
     month = ics_dt[4:6]
@@ -48,7 +51,7 @@ def ics_format_to_epoch(ics_dt):
 
     return timestamp_to_epoch(f'{day}/{month}/{year}', '/')
 
-def time_from_ics_stamp(ics_dt):
+def time_from_ics_stamp(ics_dt: str) -> Union[str, None]:
     # "20210523T205900Z" to "20:59"
     if ics_dt == 0:
         return None
@@ -65,7 +68,9 @@ def time_from_ics_stamp(ics_dt):
     return f'{hours}:{mins}'
 
 
-def epoch_to_lecture_time(start_epoch, end_epoch):
+def epoch_to_lecture_time(start_epoch: Union[int, str],
+                          end_epoch: Union[int, str]
+                          ) -> str:
     # return format "Ma 19.2. 14:00-16:00"
     weekdays_fi = {
         'Mon': 'Ma',

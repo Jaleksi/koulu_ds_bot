@@ -1,8 +1,9 @@
+from typing import List
 import sqlite3
 
 
 class DatabaseManager:
-    def __init__(self, db_path):
+    def __init__(self, db_path: str) -> None:
         self.db_path = db_path
         self.connection = sqlite3.connect(self.db_path)
         self.cursor = self.connection.cursor()
@@ -40,7 +41,7 @@ class DatabaseManager:
             self.query(q)
 
 
-    def query(self, q):
+    def query(self, q: tuple) -> int:
         '''
             q (tuple): (query (str), query parameters (tuple)) or
                        (query (str),)
@@ -52,11 +53,11 @@ class DatabaseManager:
         self.connection.commit()
         return self.cursor.lastrowid
 
-    def fetch(self, q, fetch_all=False):
+    def fetch(self, q: tuple, fetch_all: bool = False) -> List:
         self.cursor.execute(*q)
         return self.cursor.fetchall() if fetch_all else self.cursor.fetchone()
 
-    def fetch_triggered_deadlines(self, trigger_time):
+    def fetch_triggered_deadlines(self, trigger_time: str) -> List:
         q = ('''SELECT
                     deadlines.id,
                     deadlines.message,
@@ -70,7 +71,7 @@ class DatabaseManager:
             (trigger_time,))
         return self.fetch(q, fetch_all=True)
 
-    def fetch_triggered_lectures(self, trigger_time):
+    def fetch_triggered_lectures(self, trigger_time: str) -> List:
         q = ('''SELECT
                     lectures.id,
                     lectures.start_timestamp,
@@ -89,16 +90,16 @@ class DatabaseManager:
              ''', (trigger_time,))
         return self.fetch(q, fetch_all=True)
 
-    def delete_lecture_by_id(self, lecture_id):
+    def delete_lecture_by_id(self, lecture_id: str) -> None:
         self.query(('DELETE FROM lectures WHERE id=?', (lecture_id,)))
 
-    def delete_lectures_by_course_id(self, course_id):
+    def delete_lectures_by_course_id(self, course_id: str) -> None:
         self.query(('DELETE FROM lectures WHERE course_id=?', (course_id,)))
 
-    def delete_deadline_by_id(self, deadline_id):
+    def delete_deadline_by_id(self, deadline_id: str) -> None:
         self.query(('DELETE FROM deadlines WHERE id=?', (deadline_id,)))
 
-    def delete_course_by_peppi_id(self, peppi_id):
+    def delete_course_by_peppi_id(self, peppi_id: str) -> None:
         '''
             Delete course and all deadlines/lectures connected to it
         '''
@@ -107,19 +108,19 @@ class DatabaseManager:
             self.query((f'DELETE FROM {table} WHERE course_id=?', (course_id,)))
         self.query(('DELETE FROM courses WHERE peppi_id=?', (peppi_id,)))
 
-    def delete_followed_lecture(self, lecture_id):
+    def delete_followed_lecture(self, lecture_id: str) -> None:
         q = ('DELETE FROM followed_lecture_types WHERE id=?', (lecture_id,))
         self.query(q)
 
-    def get_course_by_channel_id(self, channel_id):
+    def get_course_by_channel_id(self, channel_id: str) -> List:
         q = ('SELECT * FROM courses WHERE channel_id=?', (channel_id,))
         return self.fetch(q)
 
-    def get_course_by_peppi_id(self, peppi_id):
+    def get_course_by_peppi_id(self, peppi_id: str) -> List:
         q = ('SELECT * FROM courses WHERE peppi_id=?', (peppi_id,))
         return self.fetch(q)
 
-    def get_course_lectures(self, course_id):
+    def get_course_lectures(self, course_id: str) -> List:
         q = ('''SELECT
                     *
                 FROM
@@ -131,7 +132,7 @@ class DatabaseManager:
             ''', (course_id,))
         return self.fetch(q, fetch_all=True)
 
-    def get_course_lectures_by_type(self, course_id, lecture_type):
+    def get_course_lectures_by_type(self, course_id: str, lecture_type: str) -> List:
         q = ('''SELECT
                     id
                 FROM
@@ -142,7 +143,7 @@ class DatabaseManager:
              ''', (lecture_type, course_id))
         return self.fetch(q, fetch_all=True)
 
-    def get_course_followed_lecture_by_type(self, course_id, lecture_type):
+    def get_course_followed_lecture_by_type(self, course_id: str, lecture_type: str) -> List:
         q = ('''SELECT
                     *
                 FROM
@@ -153,7 +154,7 @@ class DatabaseManager:
             ''', (lecture_type, course_id))
         return self.fetch(q, fetch_all=False)
 
-    def get_course_followed_lectures(self, course_id):
+    def get_course_followed_lectures(self, course_id: str) -> List:
         q = ('''SELECT
                     *
                 FROM
@@ -162,7 +163,7 @@ class DatabaseManager:
             ''', (course_id,))
         return self.fetch(q, fetch_all=True)
 
-    def get_course_deadlines(self, course_id):
+    def get_course_deadlines(self, course_id: str) -> List:
         q = ('''SELECT
                     courses.title,
                     deadlines.timestamp,
@@ -179,21 +180,34 @@ class DatabaseManager:
              ''', (course_id,))
         return self.fetch(q, fetch_all=True)
 
-    def insert_new_followed_course(self, course_id, lecture_type, title):
+    def insert_new_followed_course(self,
+                                   course_id: str,
+                                   lecture_type: str,
+                                   title: str
+                                   ) -> None:
         q = ('''INSERT INTO
                     followed_lecture_types(lecture_type, course_id, title)
                 VALUES(?, ?, ?)
             ''', (lecture_type, course_id, title))
         self.query(q)
 
-    def insert_new_deadline(self, course_id, timestamp, msg):
+    def insert_new_deadline(self,
+                            course_id: str,
+                            timestamp: str,
+                            msg: str
+                            ) -> None:
         q = ('''INSERT INTO
                     deadlines(course_id, timestamp, message)
                 VALUES(?, ?, ?)
             ''', (course_id, timestamp, msg))
         self.query(q)
 
-    def insert_new_course(self, peppi_id, title, channel_id, lectures):
+    def insert_new_course(self,
+                          peppi_id: str,
+                          title: str,
+                          channel_id: str,
+                          lectures: List[dict]
+                          ) -> None:
         '''
             peppi_id (str): course's peppi id
             title (str): title for course
@@ -209,7 +223,7 @@ class DatabaseManager:
         for lecture in lectures:
             self.insert_new_lecture(entry_id, lecture)
 
-    def insert_new_lecture(self, course_id, lecture):
+    def insert_new_lecture(self, course_id: int, lecture: dict) -> None:
         '''
             course_id (int): id for lecture's course
             lecture (dict): lecture info (parsed in uusikurssi.py)
@@ -224,10 +238,10 @@ class DatabaseManager:
             ''', (course_id, lecture['start'], lecture['end'], lecture['loc'], lecture['type']))
         self.query(q)
 
-    def get_all_courses(self):
+    def get_all_courses(self) -> List:
         return self.fetch(('SELECT * FROM courses',), fetch_all=True)
 
-    def get_all_deadlines(self):
+    def get_all_deadlines(self) -> List:
         q = ('''SELECT
                     courses.title,
                     deadlines.timestamp,

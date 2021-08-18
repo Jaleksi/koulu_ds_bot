@@ -1,6 +1,7 @@
 import requests
+from typing import Union
 
-def get_course_info(course_id=None, education_id=None):
+def get_course_info(course_id: str = None, education_id: str = None) -> Union[str, None]:
     '''
         course_id (str) : public id for course eg. "902145Y"
         education_id (str) : course id in peppi eg. "6165"

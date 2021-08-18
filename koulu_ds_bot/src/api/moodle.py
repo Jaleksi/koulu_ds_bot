@@ -1,8 +1,9 @@
 import requests
 import re
+from typing import Union
 from bs4 import BeautifulSoup
 
-def get_moodle_id(course_id):
+def get_moodle_id(course_id: str) -> Union[str, None]:
     '''
         get course's id in moodle.
 
@@ -30,7 +31,7 @@ def get_moodle_id(course_id):
     return None
 
 
-def get_calendar_dl_link(course_id):
+def get_calendar_dl_link(course_id: str) -> Union[str, None]:
     '''
         get link to download courses calendar from moodle.
         to download calendar you have to be logged in into moodle
