@@ -11,11 +11,11 @@ from .util.time_utils import current_hour, epoch_now, epoch_to_readable_time
 
 class KouluBot(Bot):
     def __init__(self, config: dict) -> None:
-        self.config: dict = config
-        self.db: DatabaseManager = DatabaseManager(self.config['databasePath'])
-        self.last_deadlines_check: int = 0
+        self.config = config
+        self.db = DatabaseManager(self.config['databasePath'])
+        self.last_deadlines_check = 0
         super().__init__(command_prefix=self.config['commandPrefix'])
-        self.logger: logging.Logger = self.init_logging()
+        self.logger = self.init_logging()
         self.init_commands()
 
     def init_logging(self) -> logging.Logger:
