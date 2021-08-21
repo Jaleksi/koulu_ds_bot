@@ -87,3 +87,7 @@ def epoch_to_lecture_time(start_epoch: Union[int, str],
     date = epoch_to_readable_date(start_epoch, True)
 
     return f'{wkday} {date} {start_time}-{end_time}'
+
+def days_until(epoch_time: int) -> int:
+    in_seconds = epoch_time - epoch_now()
+    return max(0, int(in_seconds / 86400))
