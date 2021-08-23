@@ -17,6 +17,7 @@ prefix/etuliite = `!`
 |seuratut|Ei argumentteja|Näyttää sen kurssin seuratut luentotyypit, jonka kanavalla käsky annetaan|`!seuratut`|
 
 [1]
+
 ![--kuva lisäkomennolla tulostuva kuva](./.kuva.png)
 
 ## Botin loopit
