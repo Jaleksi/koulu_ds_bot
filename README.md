@@ -9,12 +9,15 @@ prefix/etuliite = `!`
 |poistakurssi|Poistettavan kurssin tunniste|Poistaa kurssin tiedot databasesta ja katkaisee yhteyden sen kanavaan.|`!poistakurssi 902150Y`|
 |kurssit|Ei argumentteja|Listaa tallennetut kurssit|`!kurssit`|
 |deadline|Päivämäärä + viesti|Yhdistää siihen kurssiin deadlinen, millä kanavalla komento suoritetaan.|`!deadline 12.5.21 essee`|
-|deadlinet|Ei argumentteja|Listaa kaikki tallennetut deadlinet.|`!deadlinet`|
+|deadlinet|Vaihtoehtoisena: --kaikki, --kuva|Listaa kanavaan tallennetun kurssin deadlinet tai kaikki deadlinet jos --kaikki käytössä. Lähettää deadlinet kuvana --kuva komennolla [1].|`!deadlinet`|
 |lueics|Liitetiedosto ics-kalenteri|Lukee Moodlesta ladatun kalenteritiedoston ja tallettaa siihen kurssiin liittyvät deadlinet, jonka kanavalta käsky annettiin.|`!lueics`|
 |luennot|Ei argumentteja|Listaa sen kurssin luennot tyypeittäin, millä kanavalla käsky annettiin|`!luennot`|
 |seuraa|Luentotyyppi (+ luennon selite)|Tallentaa kurssityypin databaseen ja ilmoittaa kun kurssi on alkamassa. Tyypit näkee luennot-komennolla|`!seuraa 28370 laskari`|
 |poistaseuraus|Luentotyyppi|Poistaa luentotyypin seurauksesta ja ei ilmoita enää, kun luennot ovat alkamassa|`!poistaseuraus 28370`|
 |seuratut|Ei argumentteja|Näyttää sen kurssin seuratut luentotyypit, jonka kanavalla käsky annetaan|`!seuratut`|
+
+[1]
+![--kuva lisäkomennolla tulostuva kuva](./.kuva.png)
 
 ## Botin loopit
 ||Aikaväli|Mitä tekee|
