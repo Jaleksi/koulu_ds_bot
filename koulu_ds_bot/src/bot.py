@@ -80,9 +80,9 @@ class KouluBot(Bot):
         self.logger.debug(f'Triggered {len(triggered_deadlines)} deadlines')
 
         for triggered in triggered_deadlines:
-            e = Embed(title='Deadlinemuistutus', description=triggered[1])
-            self.db.delete_deadline_by_id(triggered[0])
-            await self.get_channel(triggered[2]).send(embed=e)
+            e = Embed(title='Deadlinemuistutus', description=triggered['message'])
+            self.db.delete_deadline_by_id(triggered['id'])
+            await self.get_channel(triggered['channel_id']).send(embed=e)
 
     async def check_lecture_times(self) -> None:
         self.logger.debug('Checking lecture times')
@@ -97,11 +97,12 @@ class KouluBot(Bot):
         self.logger.debug(f'Triggered {len(triggered_lectures)} lectures')
 
         for triggered in triggered_lectures:
-            desc = f'Ajankohta {epoch_to_readable_time(triggered[1])} - {epoch_to_readable_time(triggered[2])}'
-            desc += f'\nIlmoitettu sijainti: {triggered[3]}'
+            desc = f'Ajankohta {epoch_to_readable_time(triggered["start_timestamp"])} - '
+            desc += f'{epoch_to_readable_time(triggered["end_timestamp"])}'
+            desc += f'\nIlmoitettu sijainti: {triggered["location"]}'
             e = Embed(title=triggered[4], description=desc)
-            self.db.delete_lecture_by_id(triggered[0])
-            await self.get_channel(triggered[5]).send(embed=e)
+            self.db.delete_lecture_by_id(triggered['id'])
+            await self.get_channel(triggered['channel_id']).send(embed=e)
 
     async def update_lectures(self) -> None:
         self.logger.debug('Updating lectures')
@@ -109,16 +110,15 @@ class KouluBot(Bot):
 
         for course in all_courses:
             # get courses latest lecture times
-            # course[1] = peppi_id
-            new_lecture_times = get_updated_lectures(course[1])
+            new_lecture_times = get_updated_lectures(course['peppi_id'])
 
             # if data wasn't found continue
             if new_lecture_times is None:
                 continue
 
             # remove old lecture times
-            self.db.delete_lectures_by_course_id(course[0])
+            self.db.delete_lectures_by_course_id(course['id'])
 
             # add updated lectures to db
             for lecture in new_lecture_times:
-                self.db.insert_new_lecture(course[0], lecture)
+                self.db.insert_new_lecture(course['id'], lecture)

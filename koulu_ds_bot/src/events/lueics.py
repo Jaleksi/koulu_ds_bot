@@ -33,11 +33,11 @@ async def lueics(context):
     found_deadlines = 0
 
     for event in events:
-        if bound_course[1] in event.get('category'):
+        if bound_course['peppi_id'] in event.get('category'):
             ts = event.get('timestamp')
             ts = gmt_plus_2(ts)
             msg = event.get('msg', 'Ei tarkempaa tietoa')
-            context.bot.db.insert_new_deadline(bound_course[0], ts, msg)
+            context.bot.db.insert_new_deadline(bound_course['id'], ts, msg)
             added_deadlines += f'({epoch_to_readable_date(ts)}): {msg}\n\n'
             found_deadlines += 1
 

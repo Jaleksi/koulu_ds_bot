@@ -14,17 +14,17 @@ async def poistaseuraus(context, lecture_type=None):
         await context.send('Tähän kanavaan ei ole liitetty kurssia')
         return
 
-    delete_this = context.bot.db.get_course_followed_lecture_by_type(bound_course[0], lecture_type)
+    delete_this = context.bot.db.get_course_followed_lecture_by_type(bound_course['id'], lecture_type)
 
     if not delete_this:
         await context.send('Seurattua luentotyyppiä ei löytynyt')
         return
-    context.bot.db.delete_followed_lecture(delete_this[0])
-    context.bot.logger.info(f'Stopped following course type {lecture_type} ({delete_this[3]})')
+    context.bot.db.delete_followed_lecture(delete_this['id'])
+    context.bot.logger.info(f'Stopped following course type {lecture_type} ({delete_this["title"]})')
 
     e = Embed(
         title='Poistettiin luentotyypin seuranta',
-        description=f'**{lecture_type}**: {delete_this[3]}'
+        description=f'**{lecture_type}**: {delete_this["title"]}'
     )
     await context.send(embed=e)
 

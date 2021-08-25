@@ -20,18 +20,20 @@ async def seuraa(context, lecture_type=None, *title):
         return
 
     # make sure lecture type is valid
-    lectures_to_follow = context.bot.db.get_course_lectures_by_type(bound_course[0], lecture_type)
+    lectures_to_follow = context.bot.db.get_course_lectures_by_type(bound_course['id'],
+                                                                    lecture_type)
     if not lectures_to_follow:
         await context.send('Kurssityyppiä ei löytynyt tälle kurssille')
         return
     
     # check if lecture type is already followed
-    already_following = context.bot.db.get_course_followed_lecture_by_type(bound_course[0], lecture_type)
+    already_following = context.bot.db.get_course_followed_lecture_by_type(bound_course['id'],
+                                                                           lecture_type)
     if already_following:
         await context.send('Luentotyyppiä seurataan jo tällä kurssilla')
         return
 
-    context.bot.db.insert_new_followed_course(bound_course[0], lecture_type, title)
+    context.bot.db.insert_new_followed_course(bound_course['id'], lecture_type, title)
     context.bot.logger.info(f'Following new lecturetype {lecture_type} ({title})')
 
     e = Embed(

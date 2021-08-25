@@ -1,11 +1,12 @@
-from typing import List
+from typing import List, Union
 import sqlite3
-
+from .util import fetch_to_dict
 
 class DatabaseManager:
     def __init__(self, db_path: str) -> None:
         self.db_path = db_path
         self.connection = sqlite3.connect(self.db_path)
+        self.connection.row_factory = fetch_to_dict
         self.cursor = self.connection.cursor()
         tables = {
             'courses': [
@@ -53,7 +54,7 @@ class DatabaseManager:
         self.connection.commit()
         return self.cursor.lastrowid
 
-    def fetch(self, q: tuple, fetch_all: bool = False) -> List:
+    def fetch(self, q: tuple, fetch_all: bool = False) -> Union[List, dict]:
         self.cursor.execute(*q)
         return self.cursor.fetchall() if fetch_all else self.cursor.fetchone()
 
@@ -112,15 +113,15 @@ class DatabaseManager:
         q = ('DELETE FROM followed_lecture_types WHERE id=?', (lecture_id,))
         self.query(q)
 
-    def get_course_by_channel_id(self, channel_id: str) -> List:
+    def get_course_by_channel_id(self, channel_id: str) -> dict:
         q = ('SELECT * FROM courses WHERE channel_id=?', (channel_id,))
         return self.fetch(q)
 
-    def get_course_by_peppi_id(self, peppi_id: str) -> List:
+    def get_course_by_peppi_id(self, peppi_id: str) -> dict:
         q = ('SELECT * FROM courses WHERE peppi_id=?', (peppi_id,))
         return self.fetch(q)
 
-    def get_course_lectures(self, course_id: str) -> List:
+    def get_course_lectures(self, course_id: str) -> dict:
         q = ('''SELECT
                     *
                 FROM
@@ -143,7 +144,7 @@ class DatabaseManager:
              ''', (lecture_type, course_id))
         return self.fetch(q, fetch_all=True)
 
-    def get_course_followed_lecture_by_type(self, course_id: str, lecture_type: str) -> List:
+    def get_course_followed_lecture_by_type(self, course_id: str, lecture_type: str) -> dict:
         q = ('''SELECT
                     *
                 FROM

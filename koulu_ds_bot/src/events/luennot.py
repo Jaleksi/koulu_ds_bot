@@ -13,16 +13,18 @@ async def luennot(context):
         await context.send('Tätä kanavaa ei ole yhdistetty mihinkään kurssiin')
         return
 
-    lectures_list = context.bot.db.get_course_lectures(bound_course[0])
+    lectures_list = context.bot.db.get_course_lectures(bound_course['id'])
 
     # sort lectures by types into dict
     lectures_by_type = {}
     for lecture in lectures_list:
-        lecture_type = lecture[5]
+        lecture_type = lecture['lecture_type']
         if not lectures_by_type.get(lecture_type):
-            lectures_by_type[lecture_type] = [epoch_to_lecture_time(lecture[2], lecture[3])]
+            lectures_by_type[lecture_type] = [epoch_to_lecture_time(lecture['start_timestamp'],
+                                                                    lecture['end_timestamp'])]
             continue
-        lectures_by_type[lecture_type].append(epoch_to_lecture_time(lecture[2], lecture[3]))
+        lectures_by_type[lecture_type].append(epoch_to_lecture_time(lecture['start_timestamp'],
+                                                                    lecture['end_timestamp']))
 
     lectures = '\n'.join(
         [
@@ -33,7 +35,7 @@ async def luennot(context):
         ]
     )
 
-    e = Embed(title=f'Luennot {bound_course[2]}', description=lectures)
+    e = Embed(title=f'Luennot {bound_course["title"]}', description=lectures)
     await context.send(embed=e)
 
 def setup(bot):

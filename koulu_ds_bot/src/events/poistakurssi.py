@@ -17,14 +17,14 @@ async def poistakurssi(context, peppi_id=None):
 
         context.bot.db.delete_course_by_peppi_id(peppi_id)
 
-        channel = context.bot.get_channel(delete_this[3])
+        channel = context.bot.get_channel(delete_this['channel_id'])
         context.bot.logger.info(
             f'Removed course {peppi_id} from channel {channel}'
         )
 
         e = Embed(
             title=f'Poistettiin kurssi {peppi_id} kanavalta {channel}',
-            description=delete_this[2]
+            description=delete_this['title']
         )
         await channel.send(embed=e)
 

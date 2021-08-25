@@ -13,17 +13,17 @@ async def seuratut(context):
         await context.send('Tätä kanavaa ei ole yhdistetty mihinkään kurssiin')
         return
 
-    followed_lecturetypes_list = context.bot.db.get_course_followed_lectures(bound_course[0])
+    followed_lecturetypes_list = context.bot.db.get_course_followed_lectures(bound_course['id'])
 
     followed_lecturetypes = '\n'.join(
         [
-            f'**{followed[1]}**: {followed[3]}'
+            f'**{followed["lecture_type"]}**: {followed["title"]}'
             for followed
             in followed_lecturetypes_list
         ]
     )
 
-    e = Embed(title=f'Seuratut luentotyypit {bound_course[2]}', description=followed_lecturetypes)
+    e = Embed(title=f'Seuratut luentotyypit {bound_course["title"]}', description=followed_lecturetypes)
     await context.send(embed=e)
 
 def setup(bot):

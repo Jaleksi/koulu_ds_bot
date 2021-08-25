@@ -35,7 +35,7 @@ async def deadline(context, timestamp=None, *msg):
         await context.send('Tähän kanavaan ei ole liitetty kurssia.')
         return
 
-    context.bot.db.insert_new_deadline(bound_course[0], int(epoch_time), msg)
+    context.bot.db.insert_new_deadline(bound_course['id'], int(epoch_time), msg)
     context.bot.logger.info(f'Added new deadline {msg} ({timestamp})')
 
     e = Embed(

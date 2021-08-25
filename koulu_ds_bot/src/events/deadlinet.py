@@ -21,7 +21,7 @@ async def deadlinet(context, *args):
     if not bound_course or return_all_deadlines:
         deadlines_list = context.bot.db.get_all_deadlines()
     else:
-        deadlines_list = context.bot.db.get_course_deadlines(bound_course[0])
+        deadlines_list = context.bot.db.get_course_deadlines(bound_course['id'])
 
     if not deadlines_list:
         await context.send("Ei tallennettuja deadlineja")
@@ -30,10 +30,10 @@ async def deadlinet(context, *args):
     if return_as_image:
         deadlines = [
             {
-                'course': deadline[0],
-                'date': epoch_to_readable_date(deadline[1]),
-                'title': deadline[2],
-                'days_until': days_until(deadline[1])
+                'course': deadline['title'],
+                'date': epoch_to_readable_date(deadline['timestamp']),
+                'title': deadline['message'],
+                'days_until': days_until(deadline['timestamp'])
             }
             for deadline
             in deadlines_list
@@ -48,7 +48,7 @@ async def deadlinet(context, *args):
     else:
         deadlines = '\n'.join(
             [
-                f'**{deadline[0]} ({epoch_to_readable_date(deadline[1])}):** {deadline[2]}'
+                f'**{deadline["title"]} ({epoch_to_readable_date(deadline["timestamp"])}):** {deadline["message"]}'
                 for deadline
                 in deadlines_list
             ]
