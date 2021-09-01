@@ -104,7 +104,7 @@ class DatabaseManager:
         '''
             Delete course and all deadlines/lectures connected to it
         '''
-        course_id = self.get_course_by_peppi_id(peppi_id)[0]
+        course_id = self.get_course_by_peppi_id(peppi_id)['id']
         for table in ['deadlines', 'lectures', 'followed_lecture_types']:
             self.query((f'DELETE FROM {table} WHERE course_id=?', (course_id,)))
         self.query(('DELETE FROM courses WHERE peppi_id=?', (peppi_id,)))
