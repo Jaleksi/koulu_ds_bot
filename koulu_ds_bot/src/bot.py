@@ -61,8 +61,8 @@ class KouluBot(Bot):
     async def alarms_checker(self) -> None:
         # Check deadlines only once a day at 12 o'clock
         time_since_last_check = epoch_now() - self.last_deadlines_check
-        twelve_hours = 43200
-        if current_hour() == 12 and time_since_last_check > twelve_hours:
+        ten_hours = 36000
+        if current_hour() == 12 and time_since_last_check > ten_hours:
             self.last_deadlines_check = epoch_now()
             await self.check_deadlines()
             await self.update_lectures()
@@ -100,7 +100,7 @@ class KouluBot(Bot):
             desc = f'Ajankohta {epoch_to_readable_time(triggered["start_timestamp"])} - '
             desc += f'{epoch_to_readable_time(triggered["end_timestamp"])}'
             desc += f'\nIlmoitettu sijainti: {triggered["location"]}'
-            e = Embed(title=triggered[4], description=desc)
+            e = Embed(title=triggered['title'], description=desc)
             self.db.delete_lecture_by_id(triggered['id'])
             await self.get_channel(triggered['channel_id']).send(embed=e)
 
