@@ -9,8 +9,6 @@ def create_image(deadline_data: List[dict]) -> bytes:
     left_padding = 20
     header_left_pad = 165
     line_height = 16
-    bar_start_x = 200
-    bar_width = norm_font_size * 2
     bar_y_offset = 0
     bg = '#81b29a'
     header_color = '#3d405b'
@@ -20,6 +18,8 @@ def create_image(deadline_data: List[dict]) -> bytes:
     height = top_padding + header_font_size + line_height
     height += len(deadline_data) * (line_height * 3)
     width = 500
+    bar_start_x = width / 2
+    bar_width = norm_font_size * 2
     bar_length = width - bar_start_x - left_padding - (bar_width / 2)
     max_days = 30
 
@@ -37,7 +37,7 @@ def create_image(deadline_data: List[dict]) -> bytes:
     for deadline in deadline_data:
         # COURSE TEXT
         course = deadline['course']
-        course = course if len(course) < 20 else course[:20] + '...'
+        course = course if len(course) < 32 else course[:32] + '...'
         draw.text(
             (left_padding, y_pos),
             course,
@@ -48,7 +48,7 @@ def create_image(deadline_data: List[dict]) -> bytes:
         
         # DATE AND TITLE TEXT
         title = deadline['title']
-        title = title if len(title) < 22 else title[:22] + '...'
+        title = title if len(title) < 24 else title[:24] + '...'
         draw.text(
             (left_padding, y_pos),
             f'{deadline["date"]} - {title}',
