@@ -22,8 +22,8 @@ def timestamp_to_epoch(timestamp: str, delimiter: str) -> int:
 
 def gmt_plus_2(timestamp: int) -> int:
     two_hours_in_seconds = 7200
-    summer_time_savings = 3600
-    return timestamp + two_hours_in_seconds + summer_time_savings
+    #summer_time_savings = 3600
+    return timestamp + two_hours_in_seconds
 
 
 def epoch_to_readable_date(epoch_time: Union[int, str],
